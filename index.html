@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CropCare AI - Disease Diagnosis</title>
+
+  <style>
+    /* 🌿 Base styling */
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(120deg, #dff6e3, #f3fff2);
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 🍃 Floating leaves animation */
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+      50% { transform: translateY(-20px) rotate(45deg); opacity: 1; }
+      100% { transform: translateY(0) rotate(90deg); opacity: 0.8; }
+    }
+
+    .leaf {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: url('https://cdn-icons-png.flaticon.com/512/765/765514.png') no-repeat center/contain;
+      opacity: 0.3;
+      animation: float 6s infinite ease-in-out;
+    }
+
+    .leaf:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+    .leaf:nth-child(2) { top: 60%; left: 80%; animation-delay: 2s; }
+    .leaf:nth-child(3) { top: 40%; left: 50%; animation-delay: 4s; }
+    .leaf:nth-child(4) { top: 75%; left: 25%; animation-delay: 6s; }
+
+    /* 🌱 Header */
+    header {
+      text-align: center;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      animation: fadeIn 1.5s ease;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #245c34;
+      letter-spacing: 1px;
+      text-shadow: 0px 3px 10px rgba(36, 92, 52, 0.25);
+    }
+
+    header p {
+      font-size: 1.1rem;
+      color: #4b704b;
+      margin-top: 0.3rem;
+    }
+
+    /* 🔗 Navigation Buttons */
+    #navButtons {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .nav-btn {
+      background: rgba(36, 92, 52, 0.9);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 12px rgba(36, 92, 52, 0.25);
+    }
+
+    .nav-btn:hover {
+      background: #388e3c;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+    }
+
+    /* 🌾 Upload Section (Glassmorphism) */
+    #uploadSection {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 550px;
+      text-align: center;
+      animation: slideUp 0.8s ease;
+    }
+
+    #uploadSection:hover {
+      transform: scale(1.01);
+      box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    #imagePreview {
+      display: none;
+      max-width: 100%;
+      border-radius: 12px;
+      margin-top: 1.2rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      animation: fadeIn 0.8s ease-in;
+    }
+
+    label.custom-upload-btn {
+      background-color: #2f6f2f;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-block;
+      margin: 1rem 0;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 12px rgba(47, 111, 47, 0.4);
+    }
+
+    label.custom-upload-btn:hover {
+      background-color: #318531;
+      transform: translateY(-3px);
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    textarea {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      border: 1.5px solid #4a774a;
+      border-radius: 10px;
+      resize: none;
+      outline: none;
+      font-size: 1rem;
+      background-color: #fefefe;
+      transition: box-shadow 0.25s ease;
+    }
+
+    textarea:focus {
+      box-shadow: 0 0 12px rgba(97, 183, 97, 0.4);
+    }
+
+    button {
+      background: linear-gradient(90deg, #4caf50, #66bb6a);
+      color: white;
+      border: none;
+      padding: 0.9rem 2.2rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1.5rem;
+      font-weight: 600;
+      width: 100%;
+      letter-spacing: 0.4px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(90deg, #43a047, #388e3c);
+      box-shadow: 0 4px 15px rgba(56, 142, 60, 0.3);
+    }
+
+    button:disabled {
+      background: #a4c1a4;
+      cursor: not-allowed;
+    }
+
+    #resultContainer {
+      background-color: rgba(230, 244, 230, 0.8);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.25);
+      margin-top: 2rem;
+      display: none;
+      animation: slideUp 0.6s ease-out;
+      text-align: left;
+    }
+
+    #resultContainer h3 {
+      margin-top: 0;
+      color: #245c34;
+    }
+
+    /* ✅ Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background-color: #2f6f2f;
+      color: white;
+      padding: 0.9rem 1.4rem;
+      border-radius: 8px;
+      display: none;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    /* ✨ Animations */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    @keyframes slideUp {
+      from {transform: translateY(30px); opacity: 0;}
+      to {transform: translateY(0); opacity: 1;}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 🍃 Floating decorative leaves -->
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+
+  <header>
+    <h1>🌱 CropCare AI</h1>
+    <p>Smart Diagnosis for Sustainable Agriculture</p>
+  </header>
+
+  <!-- 🧭 Navigation -->
+  <div id="navButtons">
+    <a href="pastresults.html" class="nav-btn">📜 View Past Results</a>
+    <a href="login.html" class="nav-btn" id="logoutBtn">🚪 Logout</a>
+  </div>
+
+  <!-- 🌿 Upload Section -->
+  <div id="uploadSection">
+    <label for="imageInput" class="custom-upload-btn">📸 Upload Image</label>
+    <input type="file" id="imageInput" accept="image/*" />
+    <img id="imagePreview" alt="Image Preview" />
+
+    <textarea id="promptInput" rows="4" placeholder="Ask a question (e.g., 'symptoms', 'cause', 'cultural', 'biological', 'chemical', 'prevention', 'scientific name')"></textarea>
+
+    <button id="diagnoseBtn">🔍 Diagnose Crop</button>
+
+    <div id="resultContainer"></div>
+  </div>
+
+  <div id="toast">✅ Image uploaded successfully!</div>
+
+  <script>
+    // 🔐 Optional: redirect to login if not logged in
+    (function enforceAuth() {
+      const username = localStorage.getItem("username");
+      if (!username) {
+        // uncomment if you want to force auth:
+        // window.location.href = "login.html";
+      }
+    })();
+
+    const imageInput = document.getElementById("imageInput");
+    const imagePreview = document.getElementById("imagePreview");
+    const toast = document.getElementById("toast");
+    const diagnoseBtn = document.getElementById("diagnoseBtn");
+    const resultContainer = document.getElementById("resultContainer");
+    const promptInput = document.getElementById("promptInput");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    // 🚪 Logout clears localStorage
+    logoutBtn.addEventListener("click", () => {
+      localStorage.removeItem("username");
+      localStorage.removeItem("userEmail");  // in case older pages stored email
+      localStorage.removeItem("userName");
+    });
+
+    // 🖼️ Preview + toast
+    imageInput.addEventListener("change", function () {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = "block";
+        };
+        reader.readAsDataURL(this.files[0]);
+
+        toast.style.display = "block";
+        setTimeout(() => (toast.style.display = "none"), 2500);
+      }
+    });
+
+    // 🔍 Diagnose
+    diagnoseBtn.addEventListener("click", async () => {
+      const imageFile = imageInput.files[0];
+      const question = promptInput.value.trim();
+      const username = localStorage.getItem("username") || "guest";
+
+      if (!imageFile) {
+        alert("Please upload an image first!");
+        return;
+      }
+
+      diagnoseBtn.disabled = true;
+      diagnoseBtn.innerText = "🌿 Analyzing...";
+
+      const formData = new FormData();
+      formData.append("image", imageFile);     // must be 'image' to match backend
+      formData.append("question", question);
+      formData.append("username", username);   // ✅ crucial: matches backend
+
+      try {
+        const res = await fetch("/predict", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || "Prediction failed. Try again later.");
+          return;
+        }
+
+        // Helpers
+        const toBullets = (arr) => (Array.isArray(arr) ? arr.map(i => `• ${i}`).join("<br>") : arr);
+        const sol = data.solutions || { cultural: [], biological: [], chemical: [] };
+
+        // Render (CDDM schema + targeted QA answer)
+        resultContainer.style.display = "block";
+        resultContainer.innerHTML = `
+          <h3>Diagnosis Result</h3>
+          <p><strong>Crop:</strong> ${data.crop}</p>
+          <p><strong>Disease:</strong> ${data.disease_name}</p>
+          <p><strong>Scientific Name:</strong> ${data.scientific_name}</p>
+
+          <div style="margin-top: 10px; padding: 10px; border-radius: 8px; background:#f1f8e9;">
+            <p style="margin:0 0 6px 0;">
+              <strong>Answer</strong> <span style="opacity:.7">(${data.qa_type || "summary"})</span>:
+            </p>
+            <pre style="white-space:pre-wrap; margin:0;">${data.qa_answer || "—"}</pre>
+          </div>
+
+          <details style="margin-top:12px;">
+            <summary style="cursor:pointer;">Show full details</summary>
+            <div style="margin-top:8px;">
+              <p><strong>Symptoms:</strong><br>${toBullets(data.symptoms)}</p>
+              <p><strong>Causes:</strong><br>${toBullets(data.causes)}</p>
+
+              <p><strong>Solutions:</strong></p>
+              <div style="margin-left:10px">
+                <p><em>Cultural</em><br>${toBullets(sol.cultural)}</p>
+                <p><em>Biological</em><br>${toBullets(sol.biological)}</p>
+                <p><em>Chemical</em><br>${toBullets(sol.chemical)}</p>
+              </div>
+
+              <p><strong>Prevention Summary:</strong><br>${data.prevention_summary}</p>
+            </div>
+          </details>
+        `;
+
+        resultContainer.scrollIntoView({ behavior: "smooth" });
+      } catch (err) {
+        alert("Server error while predicting.");
+        console.error(err);
+      } finally {
+        diagnoseBtn.disabled = false;
+        diagnoseBtn.innerText = "🔍 Diagnose Crop";
+      }
+    });
+  </script>
+</body>
+</html>
